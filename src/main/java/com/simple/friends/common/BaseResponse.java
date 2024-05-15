@@ -31,7 +31,6 @@ public class BaseResponse<T> implements Serializable {
      */
     private String description;
 
-    // https://t.zsxq.com/0emozsIJh
     public BaseResponse(int code, T data, String message, String description) {
         this.code = code;
         this.data = data;
