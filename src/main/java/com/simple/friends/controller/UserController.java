@@ -39,6 +39,7 @@ public class UserController {
      * @param userRegisterRequest
      * @return
      */
+    // 访问地址： http://localhost:8080/api/doc.html （加api: 因为配置文件配置类前缀）
     @ApiOperation("用户注册")
     @ApiOperationSupport(order = 1)
     @ApiResponses({
