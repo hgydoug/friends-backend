@@ -1,6 +1,7 @@
 package com.simple.friends.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import com.simple.friends.common.ErrorCode;
 import com.simple.friends.contant.UserConstant;
 import com.simple.friends.exception.BusinessException;
@@ -10,6 +11,7 @@ import com.simple.friends.common.ResultUtils;
 import com.simple.friends.model.domain.Users;
 import com.simple.friends.model.domain.request.UserLoginRequest;
 import com.simple.friends.model.domain.request.UserRegisterRequest;
+import io.swagger.annotations.*;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,6 +24,8 @@ import java.util.stream.Collectors;
  * 用户接口
  *
  */
+// 标志在类上，一般用于指定一个模块的名称
+@Api(tags = "用户管理")
 @RestController
 @RequestMapping("/user")
 public class UserController {
@@ -35,6 +39,13 @@ public class UserController {
      * @param userRegisterRequest
      * @return
      */
+    @ApiOperation("用户注册")
+    @ApiOperationSupport(order = 1)
+    @ApiResponses({
+//            @ApiResponse(code = 200, message = "成功", response = BaseResponse.class),
+            @ApiResponse(code = 400, message = "参数错误")
+    })
+//    @ApiImplicitParam(dataTypeClass = UserRegisterRequest.class)  // 指定方法入参信息
     @PostMapping("/register")
     public BaseResponse<Long> userRegister(@RequestBody UserRegisterRequest userRegisterRequest) {
         // 校验
@@ -108,8 +119,9 @@ public class UserController {
         return ResultUtils.success(safetyUser);
     }
 
+    @ApiOperation("搜索用户")
     @GetMapping("/search")
-    public BaseResponse<List<Users>> searchUsers(String username, HttpServletRequest request) {
+    public BaseResponse<List<Users>> searchUsers(@ApiParam(value = "用户名", required = true) String username, HttpServletRequest request) {
         if (isAdmin(request)) {
             throw new BusinessException(ErrorCode.NO_AUTH, "缺少管理员权限");
         }
