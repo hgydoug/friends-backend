@@ -13,11 +13,12 @@ import com.simple.friends.model.domain.request.UserLoginRequest;
 import com.simple.friends.model.domain.request.UserRegisterRequest;
 import io.swagger.annotations.*;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -159,6 +160,20 @@ public class UserController {
         Object userObj = request.getSession().getAttribute(UserConstant.USER_LOGIN_STATE);
         Users user = (Users) userObj;
         return user == null || user.getUserRole() != UserConstant.ADMIN_ROLE;
+    }
+
+    /**
+     * 根据标签搜索用户信息
+     * @param tagList：标签信息
+     * @return
+     */
+    @GetMapping("/search/tags")
+    public BaseResponse<List<Users>> searchTags(@RequestParam(required = false, name = "tagNameList") List<String> tagList) {
+        if (CollectionUtils.isEmpty(tagList)) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        List<Users> users = userService.searchUsersByTags(new HashSet<>(tagList));
+        return ResultUtils.success(users);
     }
 
 }

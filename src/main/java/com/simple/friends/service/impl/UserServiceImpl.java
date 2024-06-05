@@ -194,7 +194,7 @@ public class UserServiceImpl extends ServiceImpl<UsersMapper, Users>
     @Override
     public List<Users> searchUsersByTags(Set<String> tags) {
         if (CollectionUtils.isEmpty(tags)) {
-            return null;
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
 
         QueryWrapper<Users> qw = new QueryWrapper<>();
@@ -206,11 +206,11 @@ public class UserServiceImpl extends ServiceImpl<UsersMapper, Users>
     @Override
     public List<Users> searchUsersByTagsInMem(Set<String> tags) {
         if (CollectionUtils.isEmpty(tags)) {
-            return null;
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
         List<String> newTags = tags.stream().filter(StringUtils::isNotBlank).collect(Collectors.toList());
         List<Users> users = userMapper.selectList(null);
-        return Optional.of(users).orElse(new ArrayList<>())
+        return Optional.ofNullable(users).orElse(new ArrayList<>())
                 .stream()
                 .filter(user -> {
                     for (String tag : newTags) {
