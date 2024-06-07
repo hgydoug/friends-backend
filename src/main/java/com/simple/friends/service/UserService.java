@@ -82,4 +82,11 @@ public interface UserService extends IService<Users> {
      * @return
      */
     Users getCurrentUser(HttpServletRequest request);
+
+    /**
+     * 获取登录的用户信息
+     * @param request
+     * @return
+     */
+    Users getLoginUser(HttpServletRequest request);
 }

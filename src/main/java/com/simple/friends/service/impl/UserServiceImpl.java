@@ -287,5 +287,11 @@ public class UserServiceImpl extends ServiceImpl<UsersMapper, Users>
         return (Users) loginUserObj;
     }
 
+    @Override
+    public Users getLoginUser(HttpServletRequest request) {
+        Object loginUserObj = request.getSession().getAttribute(USER_LOGIN_STATE);
+        return (Users) loginUserObj;
+    }
+
 
 }

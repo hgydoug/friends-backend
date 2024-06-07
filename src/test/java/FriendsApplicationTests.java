@@ -1,3 +1,5 @@
+import com.simple.friends.model.domain.Users;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.ResolvableType;
@@ -9,11 +11,13 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
+import java.util.Base64;
 
 /**
  * 启动类测试
  *
  */
+@Slf4j
 //@SpringBootTest
 class FriendsApplicationTests {
 
@@ -27,7 +31,16 @@ class FriendsApplicationTests {
 
     @Test
     void contextLoads() {
+//        Object users = null;
+//        Users users1 = (Users) users;
 
+        try {
+            byte[] decodedCookieBytes = Base64.getDecoder().decode("NGFhZTlhYzYtZTE3ZC00MmFlLTg4YzYtZTE4MjAwMjE1MDQ3");
+            log.info("base64: {}", new String(decodedCookieBytes));
+        }
+        catch (Exception ex) {
+            log.debug("Unable to Base64 decode value: " + "base64Value");
+        }
     }
 
     interface If<T extends Number> {
