@@ -3,6 +3,7 @@ package com.simple.friends.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.simple.friends.common.ErrorCode;
+import com.simple.friends.contant.UserConstant;
 import com.simple.friends.exception.BusinessException;
 import com.simple.friends.model.domain.Tags;
 import com.simple.friends.model.domain.Users;
@@ -147,9 +148,7 @@ public class UserServiceImpl extends ServiceImpl<UsersMapper, Users>
             return null;
         }
         // 3. 用户脱敏
-        Users safetyUser = getSafetyUser(user);
-        // 4. 记录用户的登录态
-        request.getSession().setAttribute(USER_LOGIN_STATE, safetyUser);
+        Users safetyUser = updateSessionUser(user, request);
         return safetyUser;
     }
 
@@ -229,5 +228,64 @@ public class UserServiceImpl extends ServiceImpl<UsersMapper, Users>
                 })
                 .collect(Collectors.toList());
     }
+
+    @Override
+    public int updateUser(Users users, HttpServletRequest request) {
+        // 1、参数校验
+        if (users == null) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        // 从当前session中获取用户信息，
+        Users loginUser = getCurrentUser(request);
+
+        Long userId = users.getId();
+        // 2.判断当前用户是否为admin或者是修改的是自己的信息
+        if (!isAdmin(request) && !userId.equals(loginUser.getId())) {
+            throw new BusinessException(ErrorCode.NO_AUTH);
+        }
+
+        // 3. 更新用户信息
+        Users oldUser = userMapper.selectById(userId);
+        if (oldUser == null) {
+            throw new BusinessException(ErrorCode.NULL_ERROR);
+        }
+
+        int result = userMapper.updateById(users);
+        if (result == 1) {
+            // 更新成功
+            // 在查询一次
+            Users newUser = userMapper.selectById(userId);
+            updateSessionUser(newUser, request);
+        }
+
+
+
+        return result;
+    }
+
+    private Users updateSessionUser(Users users, HttpServletRequest request) {
+        // 3. 用户脱敏
+        Users safetyUser = getSafetyUser(users);
+        // 4. 记录用户的登录态
+        request.getSession().setAttribute(USER_LOGIN_STATE, safetyUser);
+        return safetyUser;
+    }
+
+    @Override
+    public boolean isAdmin(HttpServletRequest request) {
+        Object userObj = request.getSession().getAttribute(UserConstant.USER_LOGIN_STATE);
+        Users user = (Users) userObj;
+        return user != null && user.getUserRole() == UserConstant.ADMIN_ROLE;
+    }
+
+    @Override
+    public Users getCurrentUser(HttpServletRequest request) {
+        Object loginUserObj = request.getSession().getAttribute(USER_LOGIN_STATE);
+        if (loginUserObj == null) {
+            throw new BusinessException(ErrorCode.NO_AUTH);
+        }
+        return (Users) loginUserObj;
+    }
+
 
 }

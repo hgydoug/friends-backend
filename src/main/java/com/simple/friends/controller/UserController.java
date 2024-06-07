@@ -176,4 +176,10 @@ public class UserController {
         return ResultUtils.success(users);
     }
 
+    @PostMapping("/update")
+    public BaseResponse<Integer> updateUser(@RequestBody Users users, HttpServletRequest request) {
+        int result = userService.updateUser(users, request);
+        return ResultUtils.success(result);
+    }
+
 }

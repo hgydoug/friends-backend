@@ -1,6 +1,7 @@
 package com.simple.friends.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.simple.friends.contant.UserConstant;
 import com.simple.friends.model.domain.Users;
 
 import javax.servlet.http.HttpServletRequest;
@@ -57,4 +58,28 @@ public interface UserService extends IService<Users> {
     List<Users> searchUsersByTags(Set<String> tags);
 
     List<Users> searchUsersByTagsInMem(Set<String> tags);
+
+    /**
+     * 更新用户信息
+     * @param users：用户
+     * @param request：request
+     * @return
+     */
+    int updateUser(Users users, HttpServletRequest request);
+
+
+    /**
+     * 是否为管理员
+     *
+     * @param request
+     * @return
+     */
+    boolean isAdmin(HttpServletRequest request);
+
+    /**
+     * 获取当前用户信息
+     * @param request
+     * @return
+     */
+    Users getCurrentUser(HttpServletRequest request);
 }
