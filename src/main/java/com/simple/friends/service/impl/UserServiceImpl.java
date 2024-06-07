@@ -124,7 +124,7 @@ public class UserServiceImpl extends ServiceImpl<UsersMapper, Users>
         if (userAccount.length() < 4) {
             return null;
         }
-        if (userPassword.length() < 8) {
+        if (userPassword.length() < 6) {
             return null;
         }
         // 账户不能包含特殊字符
@@ -137,8 +137,9 @@ public class UserServiceImpl extends ServiceImpl<UsersMapper, Users>
         String encryptPassword = DigestUtils.md5DigestAsHex((SALT + userPassword).getBytes());
         // 查询用户是否存在
         QueryWrapper<Users> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("userAccount", userAccount);
-        queryWrapper.eq("userPassword", encryptPassword);
+        // column: 对应是数据库字段名称
+        queryWrapper.eq("user_account", userAccount);
+        queryWrapper.eq("user_password", encryptPassword);
         Users user = userMapper.selectOne(queryWrapper);
         // 用户不存在
         if (user == null) {

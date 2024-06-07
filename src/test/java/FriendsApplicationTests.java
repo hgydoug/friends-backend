@@ -20,7 +20,7 @@ class FriendsApplicationTests {
 
     @Test
     void testDigest() throws NoSuchAlgorithmException {
-        String newPassword = DigestUtils.md5DigestAsHex(("simple" + "12345").getBytes());
+        String newPassword = DigestUtils.md5DigestAsHex(("simple" + "123456").getBytes());
         System.out.println(newPassword);
     }
 
