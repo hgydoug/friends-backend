@@ -1,7 +1,6 @@
 package com.simple.friends.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.simple.friends.contant.UserConstant;
 import com.simple.friends.model.domain.Users;
 
 import javax.servlet.http.HttpServletRequest;

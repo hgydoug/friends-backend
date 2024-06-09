@@ -1,4 +1,4 @@
-package com.simple.friends.model.domain.request;
+package com.simple.friends.model.request;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;

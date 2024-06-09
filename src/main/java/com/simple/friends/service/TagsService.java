@@ -2,10 +2,6 @@ package com.simple.friends.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.simple.friends.model.domain.Tags;
-import com.simple.friends.model.domain.Users;
-
-import java.util.List;
-import java.util.Set;
 
 /**
 * @author hgy

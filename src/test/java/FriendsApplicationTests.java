@@ -1,14 +1,8 @@
-import com.simple.friends.model.domain.Users;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.core.ResolvableType;
 import org.springframework.util.DigestUtils;
 
-import javax.annotation.Resource;
 import java.lang.reflect.*;
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.Base64;

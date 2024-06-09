@@ -5,7 +5,6 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.simple.friends.common.ErrorCode;
 import com.simple.friends.contant.UserConstant;
 import com.simple.friends.exception.BusinessException;
-import com.simple.friends.model.domain.Tags;
 import com.simple.friends.model.domain.Users;
 import com.simple.friends.service.UserService;
 import com.simple.friends.mapper.UsersMapper;
@@ -24,7 +23,6 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static com.simple.friends.contant.UserConstant.USER_LOGIN_STATE;
 

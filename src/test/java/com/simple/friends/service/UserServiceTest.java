@@ -56,6 +56,14 @@ public class UserServiceTest {
         Assertions.assertTrue(result);
     }
 
+    @Test
+    public void deleteUser() {
+        Users users = new Users();
+
+        boolean b = userService.removeById(5L);
+        System.out.println("删除结果 ： " + b);
+    }
+
     /**
      * 测试删除用户
      */

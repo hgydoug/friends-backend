@@ -7,19 +7,20 @@ import com.simple.friends.common.ResultUtils;
 import com.simple.friends.model.domain.Users;
 import com.simple.friends.service.UserService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
-import org.springframework.util.AntPathMatcher;
 import org.springframework.web.servlet.HandlerInterceptor;
+import org.springframework.web.servlet.ModelAndView;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.PrintWriter;
-import java.util.List;
 
+/**
+ * @author hgy
+ * @description 统一登录拦截，利用springmvc的HandlerInterceptor实现。也看了利用Filter实现。
+ */
 @Slf4j
 @Component
 public class LoginInterceptor implements HandlerInterceptor {
@@ -49,5 +50,11 @@ public class LoginInterceptor implements HandlerInterceptor {
 
         return true;
 
+    }
+
+    @Override
+    public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView) throws Exception {
+        // 是否无论存在异常都会执行？
+        System.out.println("postHandle");
     }
 }

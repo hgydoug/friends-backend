@@ -1,4 +1,4 @@
-package com.simple.friends.model.domain.request;
+package com.simple.friends.model.request;
 
 
 import lombok.Data;

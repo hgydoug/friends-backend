@@ -1,9 +1,7 @@
 package com.simple.friends.model.domain;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.*;
+
 import java.io.Serializable;
 import java.util.Date;
 import lombok.Data;
@@ -73,7 +71,9 @@ public class Users implements Serializable {
 
     /**
      * 是否删除
+     * @TableLogic 或者在配置文件中标注对应的字段 ：标志它是逻辑删除字段
      */
+//    @TableLogic
     private Integer del;
 
     /**
