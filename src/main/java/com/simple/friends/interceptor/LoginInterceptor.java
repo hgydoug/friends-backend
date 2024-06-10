@@ -39,8 +39,8 @@ public class LoginInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         // 0. 不是访问所有的资源都需要登录，访问登录业务就不需要登录
-        log.info("request.getContextPath() = " + request.getContextPath());
-        log.info("servletPath = {}" , request.getServletPath());
+//        log.info("request.getContextPath() = " + request.getContextPath());
+//        log.info("servletPath = {}" , request.getServletPath());
 
         if (request.getMethod().equalsIgnoreCase("OPTIONS")) {
             return true;
@@ -69,6 +69,7 @@ public class LoginInterceptor implements HandlerInterceptor {
             // 返回true 一定要在此处设置threadlocal值
             UserInfoContext.set(user);
         } catch (Exception e) {
+            log.error("preHandle.err : {}" , e.getMessage());
             UserInfoContext.remove();
             throw e;
         }
@@ -83,7 +84,7 @@ public class LoginInterceptor implements HandlerInterceptor {
 //        if (true) {
 //            throw new BusinessException(ErrorCode.SYSTEM_ERROR);
 //        }
-        System.out.println("postHandle");
+//        System.out.println("postHandle");
     }
 
     /**
@@ -98,7 +99,9 @@ public class LoginInterceptor implements HandlerInterceptor {
      */
     @Override
     public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
-        System.out.println("afterCompletion");
         UserInfoContext.remove();
+        if (log.isDebugEnabled()) {
+            log.debug("移除ThreadLocal中的用户信息");
+        }
     }
 }
