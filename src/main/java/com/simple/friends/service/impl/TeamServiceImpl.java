@@ -22,6 +22,8 @@ import com.simple.friends.service.UserService;
 import com.simple.friends.service.UserTeamService;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -29,6 +31,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 /**
 * @author hgy
@@ -43,6 +46,9 @@ public class TeamServiceImpl extends ServiceImpl<TeamMapper, Team> implements Te
 
     @Resource
     private UserService userService;
+
+    @Resource
+    private RedissonClient redissonClient;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -176,50 +182,47 @@ public class TeamServiceImpl extends ServiceImpl<TeamMapper, Team> implements Te
         Users loginUser = UserInfoContext.getLoginUserInfo();
         long userId = loginUser.getId();
         // 只有一个线程能获取到锁
-//        RLock lock = redissonClient.getLock("yupao:join_team");
-//        try {
-//            // 抢到锁并执行
-//            while (true) {
-//                if (lock.tryLock(0, -1, TimeUnit.MILLISECONDS)) {
-//                    System.out.println("getLock: " + Thread.currentThread().getId());
-//                    QueryWrapper<UserTeam> userTeamQueryWrapper = new QueryWrapper<>();
-//                    userTeamQueryWrapper.eq("userId", userId);
-//                    long hasJoinNum = userTeamService.count(userTeamQueryWrapper);
-//                    if (hasJoinNum > 5) {
-//                        throw new BusinessException(ErrorCode.PARAMS_ERROR, "最多创建和加入 5 个队伍");
-//                    }
-//                    // 不能重复加入已加入的队伍
-//                    userTeamQueryWrapper = new QueryWrapper<>();
-//                    userTeamQueryWrapper.eq("userId", userId);
-//                    userTeamQueryWrapper.eq("teamId", teamId);
-//                    long hasUserJoinTeam = userTeamService.count(userTeamQueryWrapper);
-//                    if (hasUserJoinTeam > 0) {
-//                        throw new BusinessException(ErrorCode.PARAMS_ERROR, "用户已加入该队伍");
-//                    }
-//                    // 已加入队伍的人数
-//                    long teamHasJoinNum = this.countTeamUserByTeamId(teamId);
-//                    if (teamHasJoinNum >= team.getMaxNum()) {
-//                        throw new BusinessException(ErrorCode.PARAMS_ERROR, "队伍已满");
-//                    }
-//                    // 修改队伍信息
-//                    UserTeam userTeam = new UserTeam();
-//                    userTeam.setUserId(userId);
-//                    userTeam.setTeamId(teamId);
-//                    userTeam.setJoinTime(new Date());
-//                    return userTeamService.save(userTeam);
-//                }
-//            }
-//        } catch (InterruptedException e) {
-//            log.error("doCacheRecommendUser error", e);
-//            return false;
-//        } finally {
-//            // 只能释放自己的锁
-//                System.out.println("unLock: " + Thread.currentThread().getId());
-//                lock.unlock();
-//        }
-
-        return false;
-
+        RLock lock = redissonClient.getLock("yupao:join_team");
+        try {
+            // 抢到锁并执行
+            while (true) {
+                if (lock.tryLock(0, -1, TimeUnit.MILLISECONDS)) {
+                    System.out.println("getLock: " + Thread.currentThread().getId());
+                    QueryWrapper<UserTeam> userTeamQueryWrapper = new QueryWrapper<>();
+                    userTeamQueryWrapper.eq("user_id", userId);
+                    long hasJoinNum = userTeamService.count(userTeamQueryWrapper);
+                    if (hasJoinNum >= 5) {
+                        throw new BusinessException(ErrorCode.PARAMS_ERROR, "最多创建和加入 5 个队伍");
+                    }
+                    // 不能重复加入已加入的队伍
+                    userTeamQueryWrapper = new QueryWrapper<>();
+                    userTeamQueryWrapper.eq("user_id", userId);
+                    userTeamQueryWrapper.eq("team_id", teamId);
+                    long hasUserJoinTeam = userTeamService.count(userTeamQueryWrapper);
+                    if (hasUserJoinTeam > 0) {
+                        throw new BusinessException(ErrorCode.PARAMS_ERROR, "用户已加入该队伍");
+                    }
+                    // 已加入队伍的人数
+                    long teamHasJoinNum = this.countTeamUserByTeamId(teamId);
+                    if (teamHasJoinNum >= team.getMaxNum()) {
+                        throw new BusinessException(ErrorCode.PARAMS_ERROR, "队伍已满");
+                    }
+                    // 修改队伍信息
+                    UserTeam userTeam = new UserTeam();
+                    userTeam.setUserId(userId);
+                    userTeam.setTeamId(teamId);
+                    userTeam.setJoinTime(new Date());
+                    return userTeamService.save(userTeam);
+                }
+            }
+        } catch (InterruptedException e) {
+            log.error("doCacheRecommendUser error", e);
+            return false;
+        } finally {
+            // 只能释放自己的锁
+                System.out.println("unLock: " + Thread.currentThread().getId());
+                lock.unlock();
+        }
     }
 
     /**
@@ -258,7 +261,7 @@ public class TeamServiceImpl extends ServiceImpl<TeamMapper, Team> implements Te
                 // 1. 查询已加入队伍的所有用户和加入时间
                 QueryWrapper<UserTeam> userTeamQueryWrapper = new QueryWrapper<>();
                 userTeamQueryWrapper.eq("team_id", teamId);
-                userTeamQueryWrapper.last("order by id asc limit 2");
+                userTeamQueryWrapper.last("order by id asc limit 2"); // order by join_time
                 List<UserTeam> userTeamList = userTeamService.list(userTeamQueryWrapper);
                 if (CollectionUtils.isEmpty(userTeamList) || userTeamList.size() <= 1) {
                     throw new BusinessException(ErrorCode.SYSTEM_ERROR);
