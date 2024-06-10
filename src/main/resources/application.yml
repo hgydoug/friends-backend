@@ -43,4 +43,4 @@ mybatis-plus:
 
 login:
   exclude:
-    path: /user/login,/user/register
+    path: /user/login,/user/register,/doc.html,/v2/api-docs,/webjars/**,/swagger-resources
