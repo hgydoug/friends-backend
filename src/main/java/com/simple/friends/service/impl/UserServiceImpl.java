@@ -1,25 +1,28 @@
 package com.simple.friends.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.simple.friends.common.ErrorCode;
+import com.simple.friends.config.UserInfoContext;
 import com.simple.friends.contant.UserConstant;
 import com.simple.friends.exception.BusinessException;
 import com.simple.friends.model.domain.Users;
+import com.simple.friends.model.utils.AlgorithmUtils;
 import com.simple.friends.service.UserService;
 import com.simple.friends.mapper.UsersMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.math3.util.Pair;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.DigestUtils;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -173,6 +176,8 @@ public class UserServiceImpl extends ServiceImpl<UsersMapper, Users>
         safetyUser.setUserRole(originUser.getUserRole());
         safetyUser.setUserStatus(originUser.getUserStatus());
         safetyUser.setCreateTime(originUser.getCreateTime());
+        safetyUser.setTags(originUser.getTags());
+        safetyUser.setProfile(originUser.getProfile());
         return safetyUser;
     }
 
@@ -277,6 +282,11 @@ public class UserServiceImpl extends ServiceImpl<UsersMapper, Users>
     }
 
     @Override
+    public boolean isAdmin(Users user) {
+        return user != null && user.getUserRole() == UserConstant.ADMIN_ROLE;
+    }
+
+    @Override
     public Users getCurrentUser(HttpServletRequest request) {
         Object loginUserObj = request.getSession().getAttribute(USER_LOGIN_STATE);
         if (loginUserObj == null) {
@@ -289,6 +299,81 @@ public class UserServiceImpl extends ServiceImpl<UsersMapper, Users>
     public Users getLoginUser(HttpServletRequest request) {
         Object loginUserObj = request.getSession().getAttribute(USER_LOGIN_STATE);
         return (Users) loginUserObj;
+    }
+
+    @Override
+    public Page<Users> recommendUsers(long pageSize, long pageNum) {
+
+//        Users loginUser = UserInfoContext.getLoginUserInfo();
+//        String redisKey = String.format("yupao:user:recommend:%s", loginUser.getId());
+//        ValueOperations<String, Object> valueOperations = redisTemplate.opsForValue();
+        // 如果有缓存，直接读缓存
+//        Page<Users> userPage = (Page<Users>) valueOperations.get(redisKey);
+//        if (userPage != null) {
+//            return ResultUtils.success(userPage);
+//        }
+        // 无缓存，查数据库
+        QueryWrapper<Users> queryWrapper = new QueryWrapper<>();
+        Page<Users> userPage = this.page(new Page<>(pageNum, pageSize), queryWrapper);
+        // 写缓存
+//        try {
+//            valueOperations.set(redisKey, userPage, 30000, TimeUnit.MILLISECONDS);
+//        } catch (Exception e) {
+//            log.error("redis set key error", e);
+//        }
+
+        return userPage;
+    }
+
+    @Override
+    public List<Users> matchUsers(long num) {
+        QueryWrapper<Users> queryWrapper = new QueryWrapper<>();
+        queryWrapper.select("id", "tags");
+        queryWrapper.isNotNull("tags");
+        List<Users> userList = this.list(queryWrapper);
+        Users loginUser = UserInfoContext.getLoginUserInfo();
+        String tags = loginUser.getTags();
+        Gson gson = new Gson();
+        List<String> tagList = gson.fromJson(tags, new TypeToken<List<String>>() {
+        }.getType());
+        // 用户列表的下标 => 相似度
+        List<Pair<Users, Long>> list = new ArrayList<>();
+        // 依次计算所有用户和当前用户的相似度
+        for (int i = 0; i < userList.size(); i++) {
+            Users user = userList.get(i);
+            String userTags = user.getTags();
+            // 无标签或者为当前用户自己
+            if (StringUtils.isBlank(userTags) || user.getId() == loginUser.getId()) {
+                continue;
+            }
+            List<String> userTagList = gson.fromJson(userTags, new TypeToken<List<String>>() {
+            }.getType());
+            // 计算分数
+            long distance = AlgorithmUtils.minDistance(tagList, userTagList);
+            list.add(new Pair<>(user, distance));
+        }
+        // 按编辑距离由小到大排序
+        List<Pair<Users, Long>> topUserPairList = list.stream()
+                .sorted((a, b) -> (int) (a.getValue() - b.getValue()))
+                .limit(num)
+                .collect(Collectors.toList());
+        // 原本顺序的 userId 列表
+        List<Long> userIdList = topUserPairList.stream().map(pair -> pair.getKey().getId()).collect(Collectors.toList());
+        QueryWrapper<Users> userQueryWrapper = new QueryWrapper<>();
+        userQueryWrapper.in("id", userIdList);
+        // 1, 3, 2
+        // User1、User2、User3
+        // 1 => User1, 2 => User2, 3 => User3
+        Map<Long, List<Users>> userIdUserListMap = this.list(userQueryWrapper)
+                .stream()
+                .map(this::getSafetyUser)
+                .collect(Collectors.groupingBy(Users::getId));
+        List<Users> finalUserList = new ArrayList<>();
+        for (Long userId : userIdList) {
+            finalUserList.add(userIdUserListMap.get(userId).get(0));
+        }
+        return finalUserList;
+
     }
 
 

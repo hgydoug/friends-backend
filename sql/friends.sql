@@ -40,14 +40,14 @@ CREATE TABLE `tags` (
 
 -- 队伍表
 CREATE TABLE `team` (
-    `id` int unsigned NOT NULL AUTO_INCREMENT,
+    `id` bigint unsigned NOT NULL AUTO_INCREMENT,
     `name` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '队伍名称',
     `description` varchar(1024) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '队伍描述',
     `max_num` int NOT NULL DEFAULT '1' COMMENT '队伍最大人数',
     `expire_time` datetime DEFAULT NULL COMMENT '过期时间',
     `user_id` bigint NOT NULL COMMENT '创建队伍用户ID',
     `status` int NOT NULL DEFAULT '0' COMMENT '0 - 公开，1 - 私有，2 - 加密',
-    `password` int DEFAULT NULL COMMENT '密码',
+    `password` varchar(512) DEFAULT NULL COMMENT '密码',
     `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '更新时间',
     `del` tinyint NOT NULL COMMENT '是否删除 0-未删除 1-已删除',
@@ -67,17 +67,13 @@ CREATE TABLE `team` (
 -- ) comment '用户队伍关系';
 
 -- 用户队伍关系
-CREATE TABLE `team` (
-    `id` int unsigned NOT NULL AUTO_INCREMENT,
-    `name` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '队伍名称',
-    `description` varchar(1024) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '队伍描述',
-    `max_num` int NOT NULL DEFAULT '1' COMMENT '队伍最大人数',
-    `expire_time` datetime DEFAULT NULL COMMENT '过期时间',
-    `user_id` bigint NOT NULL COMMENT '创建队伍用户ID',
-    `status` int NOT NULL DEFAULT '0' COMMENT '0 - 公开，1 - 私有，2 - 加密',
-    `password` int DEFAULT NULL COMMENT '密码',
-    `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-    `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '更新时间',
-    `del` tinyint NOT NULL COMMENT '是否删除 0-未删除 1-已删除',
-    PRIMARY KEY (`id`)
+CREATE TABLE `user_team` (
+     `id` bigint NOT NULL AUTO_INCREMENT COMMENT 'id',
+     `user_id` bigint DEFAULT NULL COMMENT '用户id',
+     `team_id` bigint DEFAULT NULL COMMENT '队伍id',
+     `join_time` datetime DEFAULT NULL COMMENT '加入时间',
+     `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+     `update_time` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+     `del` tinyint NOT NULL DEFAULT '0' COMMENT '是否删除',
+     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='用户队伍关系';

@@ -1,5 +1,6 @@
 package com.simple.friends.service;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.simple.friends.model.domain.Users;
 
@@ -76,6 +77,13 @@ public interface UserService extends IService<Users> {
     boolean isAdmin(HttpServletRequest request);
 
     /**
+     * 是否为超级管理员
+     * @param user
+     * @return
+     */
+    boolean isAdmin(Users user);
+
+    /**
      * 获取当前用户信息
      * @param request
      * @return
@@ -88,4 +96,19 @@ public interface UserService extends IService<Users> {
      * @return
      */
     Users getLoginUser(HttpServletRequest request);
+
+    /**
+     * 获取推荐用户信息
+     * @param pageSize
+     * @param pageNum
+     * @return
+     */
+    Page<Users> recommendUsers(long pageSize, long pageNum);
+
+    /**
+     * 精准匹配
+     * @param num
+     * @return
+     */
+    List<Users> matchUsers(long num);
 }

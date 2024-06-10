@@ -1,6 +1,7 @@
 package com.simple.friends.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import com.simple.friends.common.ErrorCode;
 import com.simple.friends.contant.UserConstant;
@@ -13,12 +14,14 @@ import com.simple.friends.model.request.UserLoginRequest;
 import com.simple.friends.model.request.UserRegisterRequest;
 import io.swagger.annotations.*;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
@@ -181,5 +184,31 @@ public class UserController {
         int result = userService.updateUser(users, request);
         return ResultUtils.success(result);
     }
+
+
+    // todo 推荐多个，未实现
+    @GetMapping("/recommend")
+    public BaseResponse<Page<Users>> recommendUsers(long pageSize, long pageNum) {
+        Page<Users> userPage = userService.recommendUsers(pageSize, pageNum);
+        return ResultUtils.success(userPage);
+    }
+
+    /**
+     * 获取最匹配的用户
+     *
+     * @param num
+     * @param request
+     * @return
+     */
+    @GetMapping("/match")
+    public BaseResponse<List<Users>> matchUsers(long num, HttpServletRequest request) {
+        if (num <= 0 || num > 20) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        return ResultUtils.success(userService.matchUsers(num));
+    }
+
+
+
 
 }

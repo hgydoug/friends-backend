@@ -5,14 +5,14 @@
 <mapper namespace="com.simple.friends.mapper.TeamMapper">
 
     <resultMap id="BaseResultMap" type="com.simple.friends.model.domain.Team">
-            <id property="id" column="id" jdbcType="INTEGER"/>
+            <id property="id" column="id" jdbcType="BIGINT"/>
             <result property="name" column="name" jdbcType="VARCHAR"/>
             <result property="description" column="description" jdbcType="VARCHAR"/>
             <result property="maxNum" column="max_num" jdbcType="INTEGER"/>
             <result property="expireTime" column="expire_time" jdbcType="TIMESTAMP"/>
             <result property="userId" column="user_id" jdbcType="BIGINT"/>
             <result property="status" column="status" jdbcType="INTEGER"/>
-            <result property="password" column="password" jdbcType="INTEGER"/>
+            <result property="password" column="password" jdbcType="VARCHAR"/>
             <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
             <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
             <result property="del" column="del" jdbcType="TINYINT"/>

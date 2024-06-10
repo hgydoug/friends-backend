@@ -19,7 +19,7 @@ public class Team implements Serializable {
      * 
      */
     @TableId(type = IdType.AUTO)
-    private Integer id;
+    private Long id;
 
     /**
      * 队伍名称
@@ -54,7 +54,7 @@ public class Team implements Serializable {
     /**
      * 密码
      */
-    private Integer password;
+    private String password;
 
     /**
      * 创建时间

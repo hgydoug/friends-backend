@@ -1,23 +1,16 @@
-package com.simple.friends.model.domain;
+package com.simple.friends.model.vo;
 
-import com.baomidou.mybatisplus.annotation.*;
+import lombok.Data;
 
 import java.io.Serializable;
 import java.util.Date;
-import lombok.Data;
 
-/**
- * 用户
- * @TableName users
- */
-@TableName(value ="users")
 @Data
-public class Users implements Serializable {
+public class UserVO implements Serializable {
     /**
      * id
      */
-    @TableId(type = IdType.AUTO)
-    private Long id;
+    private long id;
 
     /**
      * 用户昵称
@@ -40,11 +33,6 @@ public class Users implements Serializable {
     private Integer gender;
 
     /**
-     * 密码
-     */
-    private String userPassword;
-
-    /**
      * 电话
      */
     private String phone;
@@ -53,6 +41,11 @@ public class Users implements Serializable {
      * 邮箱
      */
     private String email;
+
+    /**
+     * 标签列表 json
+     */
+    private String tags;
 
     /**
      * 状态 0 - 正常
@@ -65,16 +58,9 @@ public class Users implements Serializable {
     private Date createTime;
 
     /**
-     * 
+     *
      */
     private Date updateTime;
-
-    /**
-     * 是否删除
-     * @TableLogic 或者在配置文件中标注对应的字段 ：标志它是逻辑删除字段
-     */
-//    @TableLogic
-    private Integer del;
 
     /**
      * 用户角色 0 - 普通用户 1 - 管理员
@@ -86,16 +72,5 @@ public class Users implements Serializable {
      */
     private String planetCode;
 
-    /**
-     * 用户标签
-     */
-    private String tags;
-
-    /**
-     * 个人简介
-     */
-    private String profile;
-
-    @TableField(exist = false)
     private static final long serialVersionUID = 1L;
 }

@@ -5,7 +5,6 @@ import com.simple.friends.common.BaseResponse;
 import com.simple.friends.common.ErrorCode;
 import com.simple.friends.common.ResultUtils;
 import com.simple.friends.config.UserInfoContext;
-import com.simple.friends.exception.BusinessException;
 import com.simple.friends.model.domain.Users;
 import com.simple.friends.service.UserService;
 import lombok.extern.slf4j.Slf4j;
@@ -26,6 +25,7 @@ import java.io.PrintWriter;
  * 如果preHandle: 出现异常，afterCompletion无法执行
  * 如果handle出现异常，afterCompletion可以执行
  * 如果postHandle出现异常，afterCompletion也可以执行。
+ * 在Filter中设置登录拦截器就不会出现这个问题。finally中移除threadlocal就OK了
  */
 @Slf4j
 @Component
@@ -42,10 +42,10 @@ public class LoginInterceptor implements HandlerInterceptor {
         log.info("request.getContextPath() = " + request.getContextPath());
         log.info("servletPath = {}" , request.getServletPath());
 
-        // 这里方法中要try-catch异常，不然会出现afterComplete，无法执行
-//        if (true) {
-//            throw new BusinessException(ErrorCode.SYSTEM_ERROR);
-//        }
+        if (request.getMethod().equalsIgnoreCase("OPTIONS")) {
+            return true;
+        }
+
 
         // 1. 判断用户是否登录，如果登录，才能访问对应的资源
         Users user =  userService.getLoginUser(request);
@@ -60,8 +60,19 @@ public class LoginInterceptor implements HandlerInterceptor {
             return false;
         }
 
-        // 返回true 一定要在此处设置threadlocal值
-        UserInfoContext.set(user);
+        // 这里方法中要try-catch异常，不然会出现afterComplete，无法执行
+//        if (true) {
+//            throw new BusinessException(ErrorCode.SYSTEM_ERROR);
+//        }
+
+        try {
+            // 返回true 一定要在此处设置threadlocal值
+            UserInfoContext.set(user);
+        } catch (Exception e) {
+            UserInfoContext.remove();
+            throw e;
+        }
+
 
         return true;
 
