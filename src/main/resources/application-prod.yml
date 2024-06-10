@@ -4,7 +4,7 @@ spring:
   # DataSource Config
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: 'jdbc:mysql://sh-cynosdbmysql-grp-98pxrcoq.sql.tencentcdb.com:3344/friends?useSSL=false'
+    url:  jdbc:mysql://localhost:3306/friends
     username: sss
     password: qssd
   # session 失效时间
