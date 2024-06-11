@@ -28,9 +28,12 @@ public class TeamAddRequest implements Serializable {
     private Integer maxNum;
 
     /**
-     * 过期时间
+     * 过期时间 timezone="GMT+8"
+     * timezone: 前端传入的字符串，告诉springmvc时间转换器，对方传输过来的时间时区是GMT+8 （东八区），而本地时区也是东八区，
+     * springmvc就不会进行转换了。默认情况下springmvc，把传入过来的时间当成UTC时区的时间，而本应用（程序）时区是东八区，
+     * springmvc就会将传入的时间+8
      */
-    @JsonFormat(pattern = "yyyy/MM/dd")
+    @JsonFormat(pattern = "yyyy/MM/dd", timezone="GMT+8")
     private Date expireTime;
 
     /**
