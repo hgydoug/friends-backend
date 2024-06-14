@@ -19,6 +19,9 @@ spring:
     database: 0
 #    username: lll
 #    password:
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
 server:
   port: 8080
   servlet:

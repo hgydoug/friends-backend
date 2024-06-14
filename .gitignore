@@ -32,3 +32,6 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### 生产环境的配置文件
+application-prd.yml

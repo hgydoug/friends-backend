@@ -15,7 +15,10 @@ public class RedissonConfig {
     public RedissonClient redissonClient(RedisProperties redisProperties) {
         Config config = new Config();
         String redisAddress = String.format("redis://%s:%s", redisProperties.getHost(), redisProperties.getPort());
-        config.useSingleServer().setAddress(redisAddress);
+        config.useSingleServer()
+                .setAddress(redisAddress)
+                .setUsername(redisProperties.getUsername())
+                .setPassword(redisProperties.getPassword());
 
         return Redisson.create(config);
     }
